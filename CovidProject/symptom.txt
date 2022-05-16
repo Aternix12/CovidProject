@@ -1,0 +1,3 @@
+Fever                   Dry Cough               Runny nose                
+Tiredness               Body Ache               Short of Breath
+Loss of senses          Headache                Chest Pain
