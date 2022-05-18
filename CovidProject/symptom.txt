@@ -1,3 +1,9 @@
-Fever                   Dry Cough               Runny nose                
-Tiredness               Body Ache               Short of Breath
-Loss of senses          Headache                Chest Pain
+low Fever
+low Dry Cough
+low Runny nose
+medium Tiredness
+medium Body Ache
+medium Short of Breath
+high Loss of senses
+high Headache
+high Chest Pain

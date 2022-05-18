@@ -10,6 +10,8 @@ void teststatus();
 void displaylocations();
 void updatepatient();
 void displaypatient();
+bool checkid(string);
+string symptomseverity(string);
 
 
 int main() {
@@ -51,28 +53,61 @@ void menu() {	//Main Menu
 	}
 }
 
-void yourdetails() {
+void yourdetails() {	//Enter your details and reccomend test
 	cout << "Enter your Details" << endl;
-	string name;
 	string id;
-	string course;
-	string units;
-	string classtime;
+	string firstname;
+	string lastname;
+	string dob;
+	string address;
+	string location;
+	string date;
+	string travel;
+	string testresult;
+	string status;
+
 	cout << "Enter ID: ";
 	cin >> id;
-	cout << "Enter name: ";
-	cin >> name;
-	cout << "Enter course: ";
-	cin >> course;
-	cout << "Enter Units: ";
-	cin >> units;
-	cout << "Enter Class time: ";
-	cin >> classtime;
+	if (checkid(id)) { //Checks if ID already exists
+		cout << "ID already exists!" << endl;
+		main();
+	}	
 
+	//Get Details
+	cout << "Enter firstname: ";
+	cin >> firstname;
+	cout << "Enter lastname: ";
+	cin >> lastname;
+	cout << "Enter DOB: ";
+	cin >> dob;
+	cout << "Enter Address: ";
+	cin >> address;
+	cout << "Have you traveled overseas? (Yes/No): ";
+	cin >> travel;
+
+	//Select Symptoms - Determines Severity
+	string usersymptoms;
+	string severity;
+	cout << "Enter symptom: ";
+	cin >> usersymptoms;
+	severity = symptomseverity(usersymptoms);
+	if (severity == "Failed to Find!") {
+		cout << severity << endl;
+		main();
+	}
+
+	cout << "Your symptom severity is: " << severity << endl;
+
+	//Select Location
+	
+	
+
+	/*
 	ofstream stafffile;
 	stafffile.open("database.txt", ofstream::app);
-	stafffile << name << "\t" << id << "\t" << course << "\t" << units << "\t" << classtime << endl;
-	stafffile.close();
+	stafffile << firstname << "\t" << id << "\t" << course << "\t" << units << "\t" << classtime << endl;
+	stafffile.close();*/
+
 }
 
 void teststatus() {
@@ -94,7 +129,7 @@ void displaylocations() {	//Display Locations
 	main();
 }
 
-void updatepatient() {
+void updatepatient() {	//Find and Update Patient by ID
 	string id;
 	cout << "Enter Patient ID to Update: ";
 	cin >> id;
@@ -115,7 +150,7 @@ void updatepatient() {
 
 }
 
-void displaypatient() {		//Display Patients
+void displaypatient() {		//Display Patients	DONE
 	string line;
 	cout << left << "Id" << "\t" << "Name" << "\t\t" << "DOB" << "\t" << "Address" << "\t" << "Visited Location"  << "Date" << "\t" << "Travel" << "\t" << "Covid" << "\t" << "Status" << endl;
 
@@ -136,7 +171,41 @@ void displaypatient() {		//Display Patients
 	main();
 }
 
+bool checkid(string id) {
+	string line;
+	ifstream database("database.txt");
+	if (database.is_open())
+	{
+		while (getline(database, line))
+		{
+			if (line.substr(0, 3) == id) {	//Successful find of ID
+				return true;
+			}
+		}
+	}
+	else cout << "Unable to open file";
+	database.close();
+	return false;
+}
 
+string symptomseverity(string usersymptoms) {
+	string line;
+	ifstream symptoms("symptom.txt");
+	if (symptoms.is_open())
+	{
+		while (getline(symptoms, line))
+		{
+			int pos = line.find(' ');
+			string symp;
+			symp = line.substr(pos + 1, line.size());
+			if (symp == usersymptoms) {
+				return (line.substr(0, pos));
+			}
+		}
+	}
+	symptoms.close();
+	return "Failed to Find!";
+}
 
 /*
 void yourdetails() {
