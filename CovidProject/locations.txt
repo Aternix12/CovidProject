@@ -1,7 +1,7 @@
-01 Royal Melb Hospital
-02 Tullamarine Airport
-03 St Kilda
-04 Fed Square
-05 Opera House
-06 Frankston Beach
-07 Marvel Stadium
+Royal Melb Hospital
+Tullamarine Airport
+St Kilda
+Fed Square
+Opera House
+Frankston Beach
+Marvel Stadium

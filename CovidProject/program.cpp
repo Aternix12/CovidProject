@@ -12,6 +12,7 @@ void updatepatient();
 void displaypatient();
 bool checkid(string);
 string symptomseverity(string);
+bool islocation(string);
 
 
 int main() {
@@ -60,7 +61,6 @@ void yourdetails() {	//Enter your details and reccomend test
 	string lastname;
 	string dob;
 	string address;
-	string location;
 	string date;
 	string travel;
 	string testresult;
@@ -81,15 +81,17 @@ void yourdetails() {	//Enter your details and reccomend test
 	cout << "Enter DOB: ";
 	cin >> dob;
 	cout << "Enter Address: ";
-	cin >> address;
+	cin.ignore();
+	getline(cin, address);
 	cout << "Have you traveled overseas? (Yes/No): ";
 	cin >> travel;
+	cin.ignore();
 
 	//Select Symptoms - Determines Severity
 	string usersymptoms;
 	string severity;
 	cout << "Enter symptom: ";
-	cin >> usersymptoms;
+	getline(cin, usersymptoms);
 	severity = symptomseverity(usersymptoms);
 	if (severity == "Failed to Find!") {
 		cout << severity << endl;
@@ -99,26 +101,97 @@ void yourdetails() {	//Enter your details and reccomend test
 	cout << "Your symptom severity is: " << severity << endl;
 
 	//Select Location
-	
-	
-
-	/*
-	ofstream stafffile;
-	stafffile.open("database.txt", ofstream::app);
-	stafffile << firstname << "\t" << id << "\t" << course << "\t" << units << "\t" << classtime << endl;
-	stafffile.close();*/
-
+	string userlocation;
+	cout << "Enter location: ";
+	getline(cin, userlocation);
+	if (islocation(userlocation)) {
+		cout << "High Risk Site!" << endl;
+		//Reccomend the Test
+		cout << "Please take a covid test!" << endl;
+		//Add Patient Details to File
+		ofstream database;
+		database.open("database.txt", ofstream::app);
+		if (database.good()) {
+			database << id << "\t" << firstname << " " << lastname << "\t" << dob << "\t" << address << "\t\t" << travel << "\t" << "??" << "\t" << "alive" << endl;
+			database.close();
+			cout << "Successfully added you to database" << endl;
+		}
+		else {
+			cout << "Was unable to open database file." << endl;
+		}
+		main();
+	}
+	else {	//Don't reccomend test
+		cout << "Please isolate yourself at home." << endl;
+		//Add Patient Details to File
+		ofstream database;
+		database.open("database.txt", ofstream::app);
+		if (database.good()) {
+			database << id << "\t" << firstname << " " << lastname << "\t" << dob << "\t" << address << "\t\t" << travel << "\t" << "??" << "\t" << "alive" << endl;
+			database.close();
+			cout << "Successfully added you to database" << endl;
+		}
+		else {
+			cout << "Was unable to open database file." << endl;
+		}
+	}
 }
 
 void teststatus() {
-
+	string id;
+	cout << "Enter Patient ID for COVID Diagnosis: ";
+	cin >> id;
+	if (checkid(id)) {	//Found ID
+		string positive;
+		cout << "Did this patient test POSITIVE? (Yes/No)" << endl;
+		cin >> positive;
+		if (positive == "Yes") {	//If patient positive
+			string line;
+			fstream database("database.txt");
+			if (database.is_open())
+			{
+				while (getline(database, line))
+				{
+					if (line.substr(0, 3) == id) {	//Successful find of ID
+						line.replace(77, 3, "+ve");
+						database.close();
+						cout << "Test";
+					}
+				}
+			}
+			else cout << "Unable to open file";
+			database.close();
+		}
+		else { //If patient negative
+			string line;
+			ifstream database("database.txt");
+			if (database.is_open())
+			{
+				while (getline(database, line))
+				{
+					if (line.substr(0, 3) == id) {	//Successful find of ID
+						database.close();
+						ofstream database("database.txt");
+						database.close();
+						line.replace(77,3,"-ve");
+					}
+				}
+			}
+			else cout << "Unable to open file";
+			database.close();
+		}
+	}
+	else {
+		cout << "Couldn't find ID" << endl;
+		main();
+	}
 }
 
 void displaylocations() {	//Display Locations
 	string line;
 	cout << "High Risk Locations:" << endl;
 	ifstream locations("locations.txt");
-	if (locations.is_open())
+	if (locations.is_open() && locations.good())
 	{
 		while (getline(locations, line))
 		{
@@ -133,26 +206,18 @@ void updatepatient() {	//Find and Update Patient by ID
 	string id;
 	cout << "Enter Patient ID to Update: ";
 	cin >> id;
-	string line;
-	ifstream database("database.txt");
-	if (database.is_open())
-	{
-		while (getline(database, line))
-		{
-			if (line.substr(0, 3) == id) {	//Successful find of ID
+	if (checkid(id)) {	//Found ID
 
-			}	
-		}
 	}
-	else cout << "Unable to open file";
-	database.close();
-
-
+	else {
+		cout << "Couldn't find ID" << endl;
+		main();
+	}
 }
 
-void displaypatient() {		//Display Patients	DONE
+void displaypatient() {		//Display Patients
 	string line;
-	cout << left << "Id" << "\t" << "Name" << "\t\t" << "DOB" << "\t" << "Address" << "\t" << "Visited Location"  << "Date" << "\t" << "Travel" << "\t" << "Covid" << "\t" << "Status" << endl;
+	cout << left << "Id" << "\t" << "Name" << "\t\t\t" << "DOB" << "\t\t" << "Address" << "\t\t\t" << "Travel" << "\t" << "Covid" << "\t" << "Status" << endl;
 
 	ifstream database("database.txt");
 	if (database.is_open())
@@ -179,6 +244,7 @@ bool checkid(string id) {
 		while (getline(database, line))
 		{
 			if (line.substr(0, 3) == id) {	//Successful find of ID
+				database.close();
 				return true;
 			}
 		}
@@ -193,12 +259,17 @@ string symptomseverity(string usersymptoms) {
 	ifstream symptoms("symptom.txt");
 	if (symptoms.is_open())
 	{
+		if (symptoms.peek() == ifstream::traits_type::eof()) {
+			cout << "Unable to reccomend COVID Test - required data is missing" << endl;
+			main();
+		}
 		while (getline(symptoms, line))
 		{
 			int pos = line.find(' ');
 			string symp;
 			symp = line.substr(pos + 1, line.size());
 			if (symp == usersymptoms) {
+				symptoms.close();
 				return (line.substr(0, pos));
 			}
 		}
@@ -207,76 +278,23 @@ string symptomseverity(string usersymptoms) {
 	return "Failed to Find!";
 }
 
-/*
-void yourdetails() {
-	string name;
-	string id;
-	string course;
-	string units;
-	string grades;
-	cout << "Enter name: ";
-	cin >> name;
-	cout << "Enter ID: ";
-	cin >> id;
-	cout << "Enter course: ";
-	cin >> course;
-	cout << "Enter Units: ";
-	cin >> units;
-	cout << "Enter grades: ";
-	cin >> grades;
-
-	ofstream studentsfile;
-	studentsfile.open("students.txt", std::ofstream::app);
-	studentsfile << name << "\t" << id << "\t" << course << "\t" << units << "\t" << grades << endl;
-	studentsfile.close();
-
-	main();
-}
-
-void studentin() {
-	ifstream studentsfile;
+bool islocation(string userlocation) {
 	string line;
-	studentsfile.open("students.txt");
-	while (getline(studentsfile, line)) {
-		cout << line << endl;
+	ifstream locations("locations.txt");
+	if (locations.is_open())
+	{
+		if (locations.peek() == ifstream::traits_type::eof()) {
+			cout << "Unable to reccomend COVID Test - required data is missing" << endl;
+			main();
+		}
+		while (getline(locations, line))
+		{
+			if (userlocation == line) {
+				locations.close();
+				return true;
+			}
+		}
 	}
-
-	main();
+	locations.close();
+	return false;
 }
-
-void staffin() {
-	ifstream stafffile;
-	string line;
-	stafffile.open("staff.txt");
-	while (getline(stafffile, line)) {
-		cout << line << endl;
-	}
-
-	main();
-}
-
-void staffout() {
-	string name;
-	string id;
-	string course;
-	string units;
-	string classtime;
-	cout << "Enter name: ";
-	cin >> name;
-	cout << "Enter ID: ";
-	cin >> id;
-	cout << "Enter course: ";
-	cin >> course;
-	cout << "Enter Units: ";
-	cin >> units;
-	cout << "Enter Class time: ";
-	cin >> classtime;
-
-	ofstream stafffile;
-	stafffile.open("staff.txt", std::ofstream::app);
-	stafffile << name << "\t" << id << "\t" << course << "\t" << units << "\t" << classtime << endl;
-	stafffile.close();
-
-	main();
-}
-*/
