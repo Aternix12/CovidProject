@@ -1,4 +1,4 @@
-001   Fardin         13/4/03      3810         17/5/22   Australia      +ve     dead 
-002   Jedrix         idk          3199         17/5/22   Australia      +ve     dead
-003   Sakeena        idk          idk          17/5/22   Australia      +ve     dead
-004   Tristan        idk          3168         17/5/22   Australia      +ve     dead
+001	Fardin		13/4/03	3810				No	+ve	dead 
+002   	Jedrix		idk	3199				No      +ve     dead
+003   	Sakeena		idk	idk	St Kilda	17/5/22	No      +ve     dead
+004   	Tristan		idk	3168				No      +ve     dead
