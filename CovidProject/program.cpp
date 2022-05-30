@@ -50,6 +50,7 @@ void menu() {	//Main Menu
 		displaypatient();
 		break;
 	case 6:
+		cout << "Goodbye!" << endl;
 		break;
 	}
 }
@@ -147,38 +148,60 @@ void teststatus() {
 		cin >> positive;
 		if (positive == "Yes") {	//If patient positive
 			string line;
-			fstream database("database.txt");
-			if (database.is_open())
+			ifstream databasein("database.txt");
+			if (databasein.is_open())
 			{
-				while (getline(database, line))
+				while (getline(databasein, line))
 				{
 					if (line.substr(0, 3) == id) {	//Successful find of ID
-						line.replace(77, 3, "+ve");
-						database.close();
-						cout << "Test";
+						databasein.clear();
+						long pos = databasein.tellg();
+						databasein.close();
+						ofstream databaseout("database.txt", ofstream::_Nocreate);
+						databaseout.seekp(pos - 15);
+						databaseout << "+ve";
+						databaseout.close();
+						cout << "Written Status!" << endl;
 					}
 				}
 			}
 			else cout << "Unable to open file";
-			database.close();
+			databasein.close();
+
+			//Adding Location to Locations Database
+			string newlocation;
+			cin.ignore(256, '\n');
+			cout << "Please enter your exposure site: ";
+			getline(cin, newlocation);
+			ofstream locations("locations.txt", ios::app);
+			locations.flush();
+			locations << newlocation << endl;
+			cout << "Added location to locations list!" << endl;
+			locations.close();	
+			main();
 		}
 		else { //If patient negative
 			string line;
-			ifstream database("database.txt");
-			if (database.is_open())
+			ifstream databasein("database.txt");
+			if (databasein.is_open())
 			{
-				while (getline(database, line))
+				while (getline(databasein, line))
 				{
 					if (line.substr(0, 3) == id) {	//Successful find of ID
-						database.close();
-						ofstream database("database.txt");
-						database.close();
-						line.replace(77,3,"-ve");
+						databasein.clear();
+						long pos = databasein.tellg();
+						databasein.close();
+						ofstream databaseout("database.txt", ofstream::_Nocreate);
+						databaseout.seekp(pos - 15);
+						databaseout << "-ve";
+						databaseout.close();
+						cout << "Written Status!";
+						main();
 					}
 				}
 			}
 			else cout << "Unable to open file";
-			database.close();
+			databasein.close();
 		}
 	}
 	else {
@@ -207,7 +230,54 @@ void updatepatient() {	//Find and Update Patient by ID
 	cout << "Enter Patient ID to Update: ";
 	cin >> id;
 	if (checkid(id)) {	//Found ID
-
+		string dead;
+		cout << "Update Patient Status (alive/dead)" << endl;
+		cin >> dead;
+		if (dead == "dead") {	//If patient positive
+			string line;
+			ifstream databasein("database.txt");
+			if (databasein.is_open())
+			{
+				while (getline(databasein, line))
+				{
+					if (line.substr(0, 3) == id) {	//Successful find of ID
+						databasein.clear();
+						long pos = databasein.tellg();
+						databasein.close();
+						ofstream databaseout("database.txt", ofstream::_Nocreate);
+						databaseout.seekp(pos - 7);
+						databaseout << "dead ";
+						databaseout.close();
+						cout << "Written Status!" << endl;
+					}
+				}
+			}
+			else cout << "Unable to open file";
+			databasein.close();
+		}
+		else if (dead == "alive") {
+			string line;
+			ifstream databasein("database.txt");
+			if (databasein.is_open())
+			{
+				while (getline(databasein, line))
+				{
+					if (line.substr(0, 3) == id) {	//Successful find of ID
+						databasein.clear();
+						long pos = databasein.tellg();
+						databasein.close();
+						ofstream databaseout("database.txt", ofstream::_Nocreate);
+						databaseout.seekp(pos - 7);
+						databaseout << "alive";
+						databaseout.close();
+						cout << "Written Status!" << endl;
+					}
+				}
+			}
+			else cout << "Unable to open file";
+			databasein.close();
+		}
+		main();
 	}
 	else {
 		cout << "Couldn't find ID" << endl;
@@ -217,7 +287,7 @@ void updatepatient() {	//Find and Update Patient by ID
 
 void displaypatient() {		//Display Patients
 	string line;
-	cout << left << "Id" << "\t" << "Name" << "\t\t\t" << "DOB" << "\t\t" << "Address" << "\t\t\t" << "Travel" << "\t" << "Covid" << "\t" << "Status" << endl;
+	cout << left << "\nId" << "\t" << "Name" << "\t\t\t" << "DOB" << "\t\t" << "Address" << "\t\t\t" << "Travel" << "\t" << "Covid" << "\t" << "Status" << endl;
 
 	ifstream database("database.txt");
 	if (database.is_open())
